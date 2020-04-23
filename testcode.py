@@ -3,12 +3,21 @@ import Adafruit_DHT
 import json
 import time
 import requests
+from sds011 import *
+
 # Set sensor type : Options are DHT11,DHT22 or AM2302
 sensor=Adafruit_DHT.DHT11
  
 # Set GPIO sensor is connected to
 gpio=3
- 
+
+# Air Quality Sensor
+PMSensor = SDS011("/dev/ttyUSB0")
+sensor.sleep(sleep=true)
+time.sleep(10)
+pm25, pm10 = sensor.query()
+print("PM2.5 is :" + pm25 + " PM10 :" + pm10)
+
 # Set the URL For posting
 #url = "http://192.168.43.136:9090/scarf/env/pm"
 url = "https://kite.com/fakepagewitherror/error"
