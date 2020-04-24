@@ -5,7 +5,7 @@ import json
 #   This function will check if the buffer file exists, and if it does not,
 #   creates it.
 def check_for_buffer():
-	if not os.path.isfile('buffer'):
+	if not os.path.isfile('buffer.txt'):
 		with open("buffer.txt","w") as buffer:
 			buffer.write("")
 
@@ -22,6 +22,6 @@ def read_buffer():
 	return bufferAsJSON
 
 def write_to_buffer(failedrequest):
-	with open("buffer.txt", "w") as buffer:
+	with open("buffer.txt", "a") as buffer:
 		requestAsJSONString = json.dumps(failedrequest)
-		buffer.write(requestAsJSONString)
+		buffer.write("\n" + requestAsJSONString)
