@@ -27,13 +27,14 @@ url = "http://192.168.0.103:8080/scarf/env/pm"
 for x in range(5):
   pm25, pm10 = PMsensor.query()
   time.sleep(2)
-  data = {"dateTime":time.time(), "pm25":int(pm25), "pm10":int(pm10), "lat":57.194, "lon":-2.118}
-  print(str(data))
+  data = {"dateTime":int(round(time.time()* 1000)), "pm25":int(pm25), "pm10":int(pm10), "lat":57.194, "lon":-2.118}
+  print(str(data) + " " + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
   # Reading the DHT11 is very sensitive to timings and occasionally
   # the Pi might fail to get a valid reading. So check if readings are valid.
   if pm25 is not None and pm10 is not None:
     try:
         resp = requests.post(url, data=data)
+        print(resp.content)
     except Exception as e:
         print(e)
         check_for_buffer()
