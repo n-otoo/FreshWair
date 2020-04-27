@@ -1,5 +1,5 @@
 #import Adafruit_DHT
- 
+import os 
 import json
 import time
 import requests
@@ -10,12 +10,26 @@ from buffermanager import *
 PMsensor = SDS011("/dev/ttyUSB0")
 PMsensor.sleep(sleep=False)
 time.sleep(10)
-pm25, pm10 = PMsensor.query()
-print("PM2.5 is :" + str( pm25) + " PM10 :" + str(pm10))
+# pm25, pm10 = PMsensor.query()
+# print("PM2.5 is :" + str( pm25) + " PM10 :" + str(pm10))
 
 # Set the URL For posting
-url = "https://192.168.0.103:8080/scarf/env/pm"
+url = "http://192.168.0.103:8080/scarf/env/pm"
 
+check_for_buffer()
+didSucceedInSendingBuffer = True
+with open("buffer.txt","r"):
+    for line in read_buffer():
+       try:
+           resp = requests.post(url, data=line)
+           print(resp.content)
+       except:
+           didSucceedInSendingBuffer = False
+
+if didSucceedInSendingBuffer:
+    if os.path.exists("buffer.txt"):
+        os.remove("buffer.txt")
+ 
 # get a sensor reading (waiting 2 seconds between each retry).
 for x in range(5):
   pm25, pm10 = PMsensor.query()
