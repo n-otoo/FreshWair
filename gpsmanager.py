@@ -11,11 +11,8 @@ def getGLLSentance():
         message = GPSsensor.readline()
         if message.find(b'GLL') > 0:
             sentance = pynmea2.parse(message.decode("utf-8"))
-         #   print("Lat :" + str((float(sentance.lat) / 100)) + " | Lon:" + str((float(sentance.lon) / 100)) + "" + sentance.lon_dir)
-            direction = 1
-            if sentance.lon_dir == 'W':
-                direction = -1
-            return {"lat": float(sentance.lat)/100,"lon":(float(sentance.lon)/100) * direction}
+            # print("Lat :" + sentance.lat + " | Lon:" + sentance.lon + "" + sentance.lon_dir)
+            return convertToDegrees(sentance.lat, sentance.lat_dir, sentance.lon, sentance.lon_dir)
 
 def get_location():
     reading = True
@@ -26,4 +23,27 @@ def get_location():
             reading = False
             return response
 
-print(get_location())
+def convertToDegrees(lat, latdir, lon, londir):
+    #Sort out the directions of the based on N/S and E/W bearing
+    lonDirection = 1
+    latDirection = 1
+    if latdir == 'S':
+        latDirection = -1
+    if londir == 'W':
+        lonDirection = -1
+
+    # lon format is dddmm.mmmm
+    lonDegrees = float(lon[:3])
+    lonMinutes = float(lon[3:5])
+    lonMinuteFraction = float(lon[-5:]) / 100000
+    lonInDec = lonDegrees  + ((lonMinutes + lonMinuteFraction) / 60)
+
+    # lat format is  ddmm.mmm
+    latDegrees = float(lat[:2])
+    latMinutes = float(lat[2:4])
+    latMinuteFraction = float(lat[-5:]) / 100000
+    latInDec = latDegrees + ((latMinutes + latMinuteFraction) / 60)
+
+    latlon = {"lat":latInDec * latDirection, "lon":lonInDec * lonDirection}
+    return latlon
+
