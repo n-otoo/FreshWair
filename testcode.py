@@ -1,4 +1,5 @@
-#import Adafruit_DHT
+#!/usr/bin/env python3
+
 import os 
 import json
 import time
@@ -15,7 +16,7 @@ time.sleep(10)
 # print("PM2.5 is :" + str( pm25) + " PM10 :" + str(pm10))
 
 # Set the URL For posting
-url = "https://192.168.0.103:8443/scarf/env/pm"
+url = "https://freshwair.hopto.org:8443/scarf/env/pm"
 
 check_for_buffer()
 didSucceedInSendingBuffer = True
