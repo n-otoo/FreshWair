@@ -1,0 +1,85 @@
+<!doctype html>
+<html style="height:100%">
+	<head>
+		<meta charset="utf-8">
+		<title>PM</title>
+		<!-- *** Load the AngularJS libraries here. *** -->
+		<script src="script/angular.min.js"></script>
+		
+		<!-- *** Load the jQuery and jQueryUI libraries here. *** -->		
+	  	<script src="script/jquery-3.5.0.js"></script>
+		<script src="script/jquery-ui.min.js"></script>
+
+		<!-- *** Load jQueryUI default CSS from Google CDN. *** -->
+		<link rel="stylesheet" href="css/jquery-ui.min.css" />
+		<link rel="stylesheet" href="css/iThing.css" />
+		<script src="script/jQDateRangeSlider-min.js"></script>
+		
+		<!-- Load the LeafletJS CSS  Then JS -->
+		 <link rel="stylesheet" type="text/css" href="css/leaflet.css"/>
+		 <script src="script/leaflet.js"></script>
+		 
+		 <!-- Load the Controller -->
+		 <script src="script/zindex.js"></script>
+		 		  
+	</head>
+<body style="background-color: snow;padding:0;margin:0;height:100%">
+<div style="width:100%;height:100%" ng-app="FreshWair" ng-controller="FreshWairController">
+	<!-- The Main Popup / Modal Showing Data-->
+	<div  style="border-radius:25px;background-color:rgba(255,255,255,0.7);border:2px solid #cfeb80;width:50%;height:60%;z-index:2000;position:absolute;left:15px;top:10%" ng-show="popup.show">
+	    <span style="float:right;text-align:right;font-weight:800;padding-bottom:5px;padding-right:30px;color:red;cursor:pointer;background:#cfeb80" ng-click="closePopup()">X</span>
+		<span style="font-family:'Lucida Console', monospace;width:100%;float:left;text-align:center;font-weight:500;padding-bottom:50px;padding-top:25px">Particulate Matter Information</span>
+		<!-- Minimum Section-->
+		<span style="width:100%;float:left;padding-bottom:20px;padding-top:20px;padding-left:15px">Minimum: {{popup.min.value + " in μg/m³ @ " + popup.min.time}}</span>
+		<span ng-style="{'backgroundColor': getColorForAQI('min')}" 
+		style="width:100%;float:left;padding-bottom:20px;padding-top:20px;text-align:center;align-content: center">Min AQI 2.5: {{popup.min.aqi.pm25.toFixed(1)}} | AQI 10: {{popup.min.aqi.pm10.toFixed(1)}} </span>
+		<!-- Average Section-->
+		<span style="width:100%;float:left;padding-bottom:20px;padding-top:20px;padding-left:15px">Average: {{popup.avg.value}} in μg/m³</span>
+		<span ng-style="{'backgroundColor': getColorForAQI('average')}" 
+		style="width:100%;float:left;padding-bottom:20px;padding-top:20px;text-align:center;align-content: center">Avg. AQI 2.5: {{popup.avg.aqi.pm25.toFixed(1)}} | AQI 10: {{popup.avg.aqi.pm10.toFixed(1)}} </span>
+		<!-- Maximum Section-->
+		<span style="width:100%;float:left;padding-bottom:20px;padding-top:20px;padding-left:15px">Maximum: {{popup.max.value + " in μg/m³ @ " + popup.max.time}}</span>
+		<span ng-style="{'backgroundColor': getColorForAQI('max')}"
+		 style="width:100%;float:left;padding-bottom:20px;padding-top:20px;text-align:center;align-content: center">Max AQI 2.5: {{popup.max.aqi.pm25.toFixed(1)}} | AQI 10: {{popup.max.aqi.pm10.toFixed(1)}} </span>
+		<!-- Latest Value Section-->
+		<div style="width:100%;background:lightgoldenrodyellow;float:left;padding-bottom:20px;padding-top:20px;">
+			<span style="width:100%;font-family:'Lucida Console', monospace;float:left;padding-bottom:20px;text-align:center;align-content: center">Most Recent @ {{popup.recent.time}}</span>
+			<span style="width:100%;float:left;font-family:'Lucida Console', monospace;padding-bottom:20px;padding-left:15px;text-align:center;align-content: center">PM 2.5: {{popup.recent.pm25}}μg/m³ | PM 10: {{popup.recent.pm10}}μg/m³ </span>
+			<span  ng-style="{'backgroundColor': getColorForAQI('recent')}" style="width:100%;float:left;font-family:'Lucida Console', monospace;padding-bottom:20px;padding-top:20px;text-align:center;align-content: center">AQI 2.5: {{popup.recent.aqi.pm25.toFixed(1)}} | AQI 10: {{popup.recent.aqi.pm10.toFixed(1)}} </span>
+		</div>
+		<p>*All AQI's are based on the PM2.5 reading as this is most destructive to the human body.</p>
+		<p style="text-align: center;width: 100%;font-family:'Lucida Console', monospace;padding-bottom: 10px;scroll-padding-top: 10px;font-size: 18pt;color: lightskyblue;cursor: pointer;position: absolute;bottom: 5px;" ng-click="popup.info.show = true" >View Key for AQI</p>
+		
+	</div>
+	<!-- The Information Popup / Modal Showing Data-->
+	<div  style="border-radius:25px;background-color:rgba(255,255,255,0.7);border:2px solid #cfeb80;width:50%;height:60%;z-index:2000;position:absolute;right:15px;top:10%" ng-show="popup.info.show">
+		<span style="float:right;text-align:right;font-weight:800;padding-bottom:5px;padding-right:30px;color:red;cursor:pointer;background:#cfeb80" ng-click="closeInfoPopup()">X</span>
+		<h2 style="text-align: center;width: 100%;font-family:'Lucida Console', monospace;font-size: 16;padding-bottom: 10px;scroll-padding-top: 10px;">KEY</h2>
+		<p style="text-align: center;width: 100%;font-family:'Lucida Console', monospace;padding-bottom: 10px;scroll-padding-top: 10px;background-color: #cfeb80;">AQI 0-50 |GOOD Air Quality| Little to no risk </p>
+		<p style="text-align: center;width: 100%;font-family:'Lucida Console', monospace;padding-bottom: 10px;scroll-padding-top: 10px;background-color: yellow;">AQI 51-100 |MODERATE Air Quality| Activee children and adults, aswell as those with respiritory conditions should limit respiratorially intense activities </p>
+		<p style="text-align: center;width: 100%;font-family:'Lucida Console', monospace;padding-bottom: 10px;scroll-padding-top: 10px;background-color: orange;">AQI 101-150 |UNHEALTHY (Low) Air Quality| Active children and adults, aswell as those with respiritory conditions should limit respiratorially intense activities. Sensitive groups likely affected </p>
+		<p style="text-align: center;width: 100%;font-family:'Lucida Console', monospace;padding-bottom: 10px;scroll-padding-top: 10px;background-color: red;">AQI 151-200 |UNHEALTHY (High) Air Quality| All should limit respiratorially intense activities. Especially children and other groups with respiratory conditions such as asthma. Serious health affects for sensitive groups and healthy groups may experience effects </p>
+		<p style="text-align: center;width: 100%;font-family:'Lucida Console', monospace;padding-bottom: 10px;scroll-padding-top: 10px;background-color: violet;">AQI 151-200 |VERY UNHEALTHY Air Quality| Emergency warnings of emergency conditions. All activities outdoors to be avoided for sensitive groups. Especially children and other groups with respiratory conditions such as asthma. Serious health affects for sensitive groups and healthy groups likely to be effected </p>
+		<p style="text-align: center;width: 100%;font-family:'Lucida Console', monospace;padding-bottom: 10px;scroll-padding-top: 10px;background-color: maroon;color: snow;">AQI 151-200 |HAZARDOUS Air Quality| All activities outdoors to be avoided for all groups. Everyone may experience serious health effects </p>
+		<span><p>For further Information please visit:</p><a href="https://www.airnow.gov/aqi/aqi-basics/">AirNow AQI Basics</a></span>
+	</div>
+	<div style="width:100%;color: green;font-weight: 700;text-align: center;font-size: 32px">
+		<img src="css/images/world.png" height="36px"><span style="font-family:'Lucida Console', monospace" ng-click="enableSlider()">Fresh-Wair.io</span>
+	</div>
+	<div style="width:100%;height:95%">
+		<div id="mymap" style="height:100%">
+		</div>
+	</div>
+	<div id="dateSliderContainer" style="width:100%;z-index:2002;position: absolute;bottom:40px;" ng-click=disableNowButton()>
+		<div id="dateSlider" style="Width:100%"></div> 
+	</div>
+	<div style="width:100%;text-align: center;padding-top:10px;position: absolute;bottom:120px;z-index:2001">
+		<button style="color:green;font-weight:600;border:none;background-color:#cfeb80;text-align: center;display: inline-block;padding:15px 25px;border-radius: 5px;cursor:pointer" 
+		ng-click="setTimeToNowAndDisableSlider()" 
+		title="This will show the last 8 hours from the current time">NOW</button>
+		<button style="color:green;font-weight:600;border:none;background-color:#cfeb80;text-align: center;display: inline-block;padding:15px 25px;border-radius: 5px;cursor:pointer" ng-click="toUsersLocation()">MY LOCATION</button>
+		<button style="color:green;font-weight:600;border:none;background-color:#cfeb80;text-align: center;display: inline-block;padding:15px 25px;border-radius: 5px;cursor:pointer" ng-click="refreshCurrentData()">REFRESH</button>
+	</div>
+</div>
+</body>
+</html>
