@@ -16,8 +16,9 @@ def read_buffer():
 
 	with open("buffer.txt", "r") as buffer:
 		for line in buffer:
-			object = json.loads(line)
-			bufferAsJSON.append(object)
+			if line != "":
+				object = json.loads(line)
+				bufferAsJSON.append(object)
 
 	return bufferAsJSON
 
